@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 import { Telegraf } from 'telegraf'
-import { about } from './commands'
+import { about, time } from './commands'
 import { development, production } from './core'
 import { greeting } from './text'
 
@@ -11,6 +11,7 @@ const ENVIRONMENT = process.env.NODE_ENV || ''
 const bot = new Telegraf(BOT_TOKEN)
 
 bot.command('about', about())
+bot.command('time', time())
 bot.on('message', greeting())
 
 // prod mode (Vercel)
