@@ -28,7 +28,8 @@ export function subscribe() {
       else {
         await sql`INSERT INTO subscribe_date (chat_id, user_name, subscribe) VALUES (${chatId}, ${userName}, ARRAY[${subscribeDate}])`
       }
-      ctx.reply('Subscribe!')
+      const subscribeDates = await sql`SELECT * FROM subscribe_date WHERE chat_id = ${chatId}`
+      ctx.reply(`Subscribed! You are subscribed to the following dates: ${subscribeDates[0].subscribe.join(', ')}`)
     }
     catch (error) {
       console.error(error)
