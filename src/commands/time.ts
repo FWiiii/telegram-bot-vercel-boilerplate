@@ -9,7 +9,7 @@ export function time() {
   }
 }
 
-function timeToDate(tagetDate: Date) {
+export function timeToDate(tagetDate: Date) {
   const now = new Date()
   const diff = tagetDate.getTime() - now.getTime()
   const diffInDays = Math.floor(diff / (1000 * 60 * 60 * 24))
