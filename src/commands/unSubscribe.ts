@@ -2,8 +2,6 @@ import type { Context } from 'telegraf'
 import type { Chat } from 'telegraf/typings/core/types/typegram'
 import { sql } from '../db/db'
 
-// ... existing imports ...
-
 export function unSubscribe() {
   return async (ctx: Context) => {
     const chatId = ctx.chat?.id
@@ -11,6 +9,12 @@ export function unSubscribe() {
     const dateToUnsubscribe = ctx.payload
 
     try {
+      const currentSubscription = await sql`SELECT subscribe FROM subscribe_date WHERE chat_id = ${chatId}`
+
+      if (!currentSubscription[0]?.subscribe.includes(dateToUnsubscribe)) {
+        return ctx.reply(`You are not subscribed to ${dateToUnsubscribe}`)
+      }
+
       await sql`
         UPDATE subscribe_date 
         SET subscribe = CASE
