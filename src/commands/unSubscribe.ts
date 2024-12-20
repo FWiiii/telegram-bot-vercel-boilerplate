@@ -8,6 +8,10 @@ export function unSubscribe() {
     // @ts-ignore
     const dateToUnsubscribe = ctx.payload
 
+    if (!dateToUnsubscribe) {
+      return ctx.reply('Please provide a date to unsubscribe from.')
+    }
+
     try {
       const currentSubscription = await sql`SELECT subscribe FROM subscribe_date WHERE chat_id = ${chatId}`
 

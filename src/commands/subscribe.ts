@@ -11,6 +11,10 @@ export function subscribe() {
     // @ts-expect-error
     const subscribeDate = ctx.payload
 
+    if (!subscribeDate) {
+      return ctx.reply('Please provide a date to subscribe to.')
+    }
+
     const hasSubscribe = await sql`SELECT * FROM subscribe_date WHERE chat_id = ${chatId}`
 
     try {

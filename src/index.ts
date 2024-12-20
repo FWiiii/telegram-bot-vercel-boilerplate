@@ -1,7 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { Telegraf } from 'telegraf'
-import { about, sendSubscribeMessage, setRandomInterval, subscribe, time } from './commands'
-import { unSubscribe } from './commands/unSubscribe'
+import { sendSubscribeMessage, setRandomInterval, subscribe, subscribeInfo, unSubscribe } from './commands'
 import { development, production } from './core'
 import { sql } from './db/db'
 
@@ -10,10 +9,16 @@ const ENVIRONMENT = process.env.NODE_ENV || ''
 
 const bot = new Telegraf(BOT_TOKEN)
 
-bot.command('about', about())
-bot.command('time', time())
 bot.command('subscribe', subscribe())
-bot.command('unsubscribe', unSubscribe())
+bot.command('un_subscribe', unSubscribe())
+bot.command('subscribe_info', subscribeInfo())
+
+bot.telegram.setMyCommands([
+  { command: 'subscribe', description: 'Subscribe to a date' },
+  { command: 'un_subscribe', description: 'Unsubscribe from a date' },
+  { command: 'subscribe_info', description: 'Get your current subscriptions' },
+])
+
 const interval = setRandomInterval(async () => {
   const users = await sql`SELECT * FROM subscribe_date`
   await sendSubscribeMessage(bot, users as Array<{ subscribe: string[], user_name: string, chat_id: string }>)
