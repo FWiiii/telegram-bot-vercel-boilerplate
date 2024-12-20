@@ -1,5 +1,6 @@
 import type { Context, Telegraf } from 'telegraf'
 import type { Chat } from 'telegraf/typings/core/types/typegram'
+import { bold, fmt, mention, spoiler } from 'telegraf/format'
 import { sql } from '../db/db'
 import { timeToDate } from './time'
 
@@ -42,19 +43,28 @@ export function subscribe() {
   }
 }
 
-export async function sendSubscribeMessage(bot: Telegraf, users: Array<{ subscribe: string[], user_name: string, chat_id: string }>) {
+export async function sendSubscribeMessage(bot: Telegraf) {
+  const users = await sql`SELECT * FROM subscribe_date`
+
   if (users.length === 0)
     return
-  for (const user of users) {
-    const subscribeDate = user.subscribe
-    if (subscribeDate.length === 0)
-      continue
-    const userName = user.user_name
-    const chatId = user.chat_id
-    for (const date of subscribeDate) {
-      const { diffInDays, diffInHours, diffInMinutes, diffInSeconds } = timeToDate(new Date(date))
-      bot.telegram.sendMessage(chatId, `Hi ${userName} ${diffInDays} days ${diffInHours} hours ${diffInMinutes} minutes ${diffInSeconds} seconds left to ${date}`)
-    }
+  const promises = users.map(async (user) => {
+    return new Promise((resolve) => {
+      let replyText = `Hi,${user.user_name}\n`
+      for (const date of user.subscribe) {
+        const { diffInDays, diffInHours, diffInMinutes, diffInSeconds } = timeToDate(new Date(date))
+        replyText += `${diffInDays} days ${diffInHours} hours ${diffInMinutes} minutes ${diffInSeconds} seconds left to ${date}.\n`
+      }
+      bot.telegram.sendMessage(user.chat_id, bold(replyText))
+      resolve(user)
+    })
+  })
+  try {
+    const results = await Promise.all(promises)
+    console.log('Messages sent successfully:', results)
+  }
+  catch (error) {
+    console.error('Error sending messages:', error)
   }
 }
 
