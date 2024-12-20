@@ -8,7 +8,7 @@ export function subscribe() {
     const chat = ctx.chat as Chat.PrivateChat
     const chatId = ctx.chat?.id
     const userName = chat.username
-    // @ts-ignore
+    // @ts-expect-error
     const subscribeDate = ctx.payload
 
     const hasSubscribe = await sql`SELECT * FROM subscribe_date WHERE chat_id = ${chatId}`
@@ -38,18 +38,32 @@ export function subscribe() {
   }
 }
 
-export function sendSubscribeMessage(bot: Telegraf) {
-  let interval: NodeJS.Timeout | null = null
-  interval && clearInterval(interval)
-  interval = setInterval(async () => {
-    const users = await sql`SELECT * FROM subscribe_date`
-    const user = users[0]
+export async function sendSubscribeMessage(bot: Telegraf, users: Array<{ subscribe: string[], user_name: string, chat_id: string }>) {
+  if (users.length === 0)
+    return
+  for (const user of users) {
     const subscribeDate = user.subscribe
+    if (subscribeDate.length === 0)
+      continue
     const userName = user.user_name
     const chatId = user.chat_id
     for (const date of subscribeDate) {
       const { diffInDays, diffInHours, diffInMinutes, diffInSeconds } = timeToDate(new Date(date))
       bot.telegram.sendMessage(chatId, `Hi ${userName} ${diffInDays} days ${diffInHours} hours ${diffInMinutes} minutes ${diffInSeconds} seconds left to ${date}`)
     }
-  }, Math.floor(Math.random() * 100 + 30) * 1000 * 60)
+  }
+}
+
+export function setRandomInterval(callback: () => Promise<void>, min: number, max: number) {
+  let timeout: NodeJS.Timeout | null = null
+  const getRandomInterval = () => Math.floor(Math.random() * (max - min + 1)) + min
+  const runInterval = () => {
+    const nextDelay = getRandomInterval()
+    timeout = setTimeout(async () => {
+      await callback()
+      runInterval()
+    }, nextDelay)
+  }
+  runInterval()
+  return () => clearTimeout(timeout!)
 }
