@@ -20,9 +20,11 @@ bot.telegram.setMyCommands([
 ])
 
 const interval = setRandomInterval(async () => {
-  const users = await sql`SELECT * FROM subscribe_date`
-  await sendSubscribeMessage(bot, users as Array<{ subscribe: string[], user_name: string, chat_id: string }>)
-}, 1000 * 10, 1000 * 60)
+  // const users = await sql`SELECT * FROM subscribe_date`
+  // await sendSubscribeMessage(bot, users as Array<{ subscribe: string[], user_name: string, chat_id: string }>)
+  bot.telegram.sendMessage(1050365777, 'Hello, world!')
+  console.log('Hello, world!')
+}, 1000 * 10, 1000 * 20)
 
 // prod mode (Vercel)
 export async function startVercel(req: VercelRequest, res: VercelResponse) {
