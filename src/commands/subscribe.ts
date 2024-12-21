@@ -43,41 +43,27 @@ export function subscribe() {
   }
 }
 
-export async function sendSubscribeMessage(bot: Telegraf) {
-  const users = await sql`SELECT * FROM subscribe_date`
+// export async function sendSubscribeMessage(bot: Telegraf) {
+//   const users = await sql`SELECT * FROM subscribe_date`
 
-  if (users.length === 0)
-    return
-  const promises = users.map(async (user) => {
-    return new Promise((resolve) => {
-      let replyText = `Hi,${user.user_name}\n`
-      for (const date of user.subscribe) {
-        const { diffInDays, diffInHours, diffInMinutes, diffInSeconds } = timeToDate(new Date(date))
-        replyText += `${diffInDays} days ${diffInHours} hours ${diffInMinutes} minutes ${diffInSeconds} seconds left to ${date}.\n`
-      }
-      bot.telegram.sendMessage(user.chat_id, bold(replyText))
-      resolve(user)
-    })
-  })
-  try {
-    const results = await Promise.all(promises)
-    console.log('Messages sent successfully:', results)
-  }
-  catch (error) {
-    console.error('Error sending messages:', error)
-  }
-}
-
-export function setRandomInterval(callback: () => Promise<void>, min: number, max: number) {
-  let timeout: NodeJS.Timeout | null = null
-  const getRandomInterval = () => Math.floor(Math.random() * (max - min + 1)) + min
-  const runInterval = () => {
-    const nextDelay = getRandomInterval()
-    timeout = setTimeout(async () => {
-      await callback()
-      runInterval()
-    }, nextDelay)
-  }
-  runInterval()
-  return () => clearTimeout(timeout!)
-}
+//   if (users.length === 0)
+//     return
+//   const promises = users.map(async (user) => {
+//     return new Promise((resolve) => {
+//       let replyText = `Hi,${user.user_name}\n`
+//       for (const date of user.subscribe) {
+//         const { diffInDays, diffInHours, diffInMinutes, diffInSeconds } = timeToDate(new Date(date))
+//         replyText += `${diffInDays} days ${diffInHours} hours ${diffInMinutes} minutes ${diffInSeconds} seconds left to ${date}.\n`
+//       }
+//       bot.telegram.sendMessage(user.chat_id, bold(replyText))
+//       resolve(user)
+//     })
+//   })
+//   try {
+//     const results = await Promise.all(promises)
+//     console.log('Messages sent successfully:', results)
+//   }
+//   catch (error) {
+//     console.error('Error sending messages:', error)
+//   }
+// }

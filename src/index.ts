@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { Telegraf } from 'telegraf'
-import { sendSubscribeMessage, setRandomInterval, subscribe, subscribeInfo, unSubscribe } from './commands'
+import { subscribe, subscribeInfo, unSubscribe } from './commands'
 import { development, production } from './core'
 
 const BOT_TOKEN = process.env.BOT_TOKEN || ''
@@ -17,10 +17,6 @@ bot.telegram.setMyCommands([
   { command: 'un_subscribe', description: 'Unsubscribe from a date' },
   { command: 'subscribe_info', description: 'Get your current subscriptions' },
 ])
-
-const interval = setRandomInterval(async () => {
-  await sendSubscribeMessage(bot)
-}, 1000 * 10, 1000 * 20)
 
 // prod mode (Vercel)
 export async function startVercel(req: VercelRequest, res: VercelResponse) {
